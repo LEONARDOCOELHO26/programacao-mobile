@@ -1,0 +1,3 @@
+interface Imprimível {
+    fun imprimir()
+}
