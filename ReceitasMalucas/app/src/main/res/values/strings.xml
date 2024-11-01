@@ -1,10 +1,21 @@
 <resources>
     <string name="app_name">Receitas Malucas</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="first_fragment_label">Primeiro Fragmento</string>
+    <string name="second_fragment_label">Segundo Fragmento</string>
+    <string name="select_ingredients_message">Selecione exatamente 3 ingredientes</string>
+    <string name="nova_receita_ia">Nova Receita IA</string>
+    <string name="advance">Avançar</string>
+    <string name="search">Buscar</string>
+    <string name="titulo_receita">Título da Receita</string>
+    <string name="ingredientes">Ingredientes</string>
+    <string name="modo_preparo">Modo de Preparo</string>
+    <string name="compartilhar">Compartilhar</string>
+    <string name="voltar">Voltar</string>
+    <string name="receita">Receita</string>
+    <string name="nenhuma_receita_encontrada">Nenhuma receita encontrada</string>
+    <string name="curtir">Curtir</string>
+    <string name="descurtir">Descurtir</string>
+    <string name="compartilhar_via">Compartilhar via</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

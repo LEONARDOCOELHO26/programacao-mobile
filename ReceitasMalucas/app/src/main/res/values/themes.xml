@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- No styles.xml -->
 <resources>
+    <style name="AppTheme" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryDark">@color/purple_700</item>
+        <item name="colorAccent">@color/teal_200</item>
+    </style>
 
-    <style name="Theme.ReceitasMalucas" parent="android:Theme.Material.Light.NoActionBar" />
-    <!-- Base application theme. -->
-    <style name="Base.Theme.ReceitasMalucas" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <!-- Estilo personalizado para a Toolbar sem fundo -->
+    <style name="TransparentToolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="titleTextColor">@color/black</item> <!-- Altere para a cor do título que deseja -->
     </style>
 </resources>

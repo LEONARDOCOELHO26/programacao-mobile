@@ -2,52 +2,53 @@ package com.example.receitasmalucas
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.receitasmalucas.ui.theme.ReceitasMalucasTheme
+import androidx.compose.foundation.text.BasicTextField
 
 class MainActivity : ComponentActivity() {
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         setContent {
             ReceitasMalucasTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = Color(0xFFF5DEB3)
                 ) {
-                    IngredientSelectionScreen { selectedIngredients ->
-                        if (selectedIngredients.size == 3) {
+                    IngredientSelectionScreen(
+                        onIngredientsSelected = { selectedIngredients ->
                             val intent = Intent(this, ReceitaActivity::class.java)
                             intent.putStringArrayListExtra("selectedIngredients", ArrayList(selectedIngredients))
                             startActivity(intent)
-                        } else {
-                            Toast.makeText(this, "Selecione exatamente 3 ingredientes", Toast.LENGTH_SHORT).show()
                         }
-                    }
+                    )
                 }
             }
         }
@@ -57,8 +58,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun IngredientSelectionScreen(onIngredientsSelected: (List<String>) -> Unit) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-
-    // Lista de ingredientes e suas imagens
     val ingredients = listOf(
         "Frango" to R.drawable.frango,
         "Arroz" to R.drawable.arroz,
@@ -71,118 +70,152 @@ fun IngredientSelectionScreen(onIngredientsSelected: (List<String>) -> Unit) {
         "Cenoura" to R.drawable.cenoura,
         "Alho" to R.drawable.alho
     )
-
     val selectedIngredients = remember { mutableStateListOf<String>() }
+    val filteredIngredients = ingredients.filter {
+        it.first.contains(searchQuery.text, ignoreCase = true)
+    }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(Color(0xFFF5DEB3))
     ) {
-        // Campo de busca
-        BasicTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .background(Color.White, shape = RoundedCornerShape(8.dp))
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            singleLine = true,
-            decorationBox = { innerTextField ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    innerTextField()
-                    Spacer(modifier = Modifier.width(8.dp))
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Digite o ingrediente") },
+                leadingIcon = {
                     Icon(
-                        painter = painterResource(id = android.R.drawable.ic_menu_search),
-                        contentDescription = "Search",
+                        Icons.Filled.Search,
+                        contentDescription = stringResource(R.string.search),
                         tint = Color.Gray
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .background(Color.White, shape = RoundedCornerShape(8.dp))
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Escolha até 3 ingredientes:",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = DarkGray,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 120.dp),
+                contentPadding = PaddingValues(8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(filteredIngredients) { (ingredientName, imageRes) ->
+                    IngredientCard(
+                        name = ingredientName,
+                        imageRes = imageRes,
+                        isSelected = selectedIngredients.contains(ingredientName),
+                        onClick = {
+                            if (selectedIngredients.contains(ingredientName)) {
+                                selectedIngredients.remove(ingredientName)
+                            } else if (selectedIngredients.size < 3) {
+                                selectedIngredients.add(ingredientName)
+                            }
+                        }
                     )
                 }
             }
-        )
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Lista de ingredientes filtrados
-        ingredients.filter { it.first.contains(searchQuery.text, ignoreCase = true) }
-            .forEach { (ingredientName, imageRes) ->
-                IngredientItem(
-                    name = ingredientName,
-                    imageRes = imageRes,
-                    isSelected = selectedIngredients.contains(ingredientName),
-                    onClick = {
-                        if (selectedIngredients.contains(ingredientName)) {
-                            selectedIngredients.remove(ingredientName)
-                        } else if (selectedIngredients.size < 3) {
-                            selectedIngredients.add(ingredientName)
-                        }
-                    }
+        FloatingActionButton(
+            onClick = { onIngredientsSelected(selectedIngredients) },
+            containerColor = if (selectedIngredients.size == 3) Color(0xFFDAA520) else Color.Gray,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp),
+            shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(8.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = "Gerar Receita",
+                    tint = White,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Gerar Receita",
+                    color = White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
                 )
             }
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Botão para prosseguir
-        Button(
-            onClick = { onIngredientsSelected(selectedIngredients) },
-            enabled = selectedIngredients.size == 3,
+        FloatingActionButton(
+            onClick = { onIngredientsSelected(emptyList()) },
+            containerColor = Color(0xFFDAA520),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(8.dp)
         ) {
-            Text(text = "Avançar")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = "Receita com IA",
+                    tint = White,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Receita com IA",
+                    color = White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
 
 @Composable
-fun IngredientItem(name: String, imageRes: Int, isSelected: Boolean, onClick: () -> Unit) {
-    Row(
+fun IngredientCard(name: String, imageRes: Int, isSelected: Boolean, onClick: () -> Unit) {
+    val backgroundColor = if (isSelected) Color(0xFFE5C097) else Color(0xFFF5DEB3)
+    val borderColor = if (isSelected) Color(0xFFDAA520) else Color.Transparent
+
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(8.dp)
+            .background(color = backgroundColor, shape = RoundedCornerShape(12.dp))
+            .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(12.dp))
             .clickable { onClick() }
-            .background(Color(0xFFF0F0F0), shape = RoundedCornerShape(8.dp))
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Checkbox(
-            checked = isSelected,
-            onCheckedChange = { onClick() }
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Exibição da imagem do ingrediente
         Image(
             painter = painterResource(id = imageRes),
-            contentDescription = null,
-            modifier = Modifier.size(50.dp),
+            contentDescription = name,
+            modifier = Modifier
+                .size(80.dp)
+                .background(Color.White, shape = RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop
         )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = name,
             style = MaterialTheme.typography.bodyLarge,
-            fontSize = 18.sp,
-            color = Color.Black
+            fontSize = 16.sp,
+            color = DarkGray
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun IngredientSelectionScreenPreview() {
-    ReceitasMalucasTheme {
-        IngredientSelectionScreen {}
     }
 }
